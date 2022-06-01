@@ -2,10 +2,18 @@ version: "3.8"
 
 services:
   postgres:
-    image: public.ecr.aws/bitnami/postgresql:11
+    image: postgres
     ports:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: outbox
       POSTGRES_USER: outbox
       POSTGRES_DB: outbox
+  rabbit:
+    image: rabbitmq:management
+    environment:
+      RABBITMQ_DEFAULT_USER: outbox
+      RABBITMQ_DEFAULT_PASS: outbox
+    ports:
+      - "5672:5672"
+      - "15672:15672"
