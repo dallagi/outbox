@@ -4,6 +4,9 @@ use sqlx::types::Json;
 use sqlx::{postgres::PgPoolOptions, Executor};
 use tokio::time::sleep;
 
+// STRATEGIES
+// 1. polling
+
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
     let pool = PgPoolOptions::new()
@@ -13,10 +16,16 @@ async fn main() -> Result<(), sqlx::Error> {
 
     pool.acquire()
         .await?
+        .execute("DROP TABLE messages_outbox")
+        .await?;
+
+    pool.acquire()
+        .await?
         .execute(
             r#"
-        CREATE TABLE IF NOT EXISTS messages_outbox (
-            payload JSON
+        CREATE TABLE messages_outbox (
+            payload JSON NOT NULL,
+            relayed_at TIMESTAMP DEFAULT null
         )"#,
         )
         .await?;
@@ -32,3 +41,5 @@ async fn main() -> Result<(), sqlx::Error> {
         sleep(Duration::from_millis(500)).await;
     }
 }
+
+fn relay_to_rabbit() {}
